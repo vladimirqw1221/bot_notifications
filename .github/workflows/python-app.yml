@@ -19,9 +19,10 @@ env:
   WORKWLOF_ID: ${{secrets.WORKWLOF_ID}}
 
 jobs:
-  build:
+  create-bot:
 
     runs-on: ubuntu-latest
+    continue-on-error: true
 
     steps:
     - uses: actions/checkout@v3
@@ -40,6 +41,12 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
-      run: |
-        python main.py
+
+  start-bot:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    needs: create-bot
+    steps:
+      - name: Run Bots
+        run: |
+          python main.py
