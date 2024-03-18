@@ -4,13 +4,19 @@
 name: Python application
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
+
+
 
 permissions:
   contents: read
+
+env:
+  TOKEN_GITHUB= ${{secrets.TOKEN_GITHUB}}
+  TOKEN_BOT= ${{secrets.TOKEN_BOT}}
+  REPO_NAME= ${{secrets.REPO_NAME}}
+  REPO_OWER= ${{secrets.REPO_OWER}}
+  WORKWLOF_ID= ${{secrets.WORKWLOF_ID}}
 
 jobs:
   build:
