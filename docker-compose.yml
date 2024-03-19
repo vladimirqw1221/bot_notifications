@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  bot:
+    build: .
+#      context: .
+#      dockerfile: Dockerfile
+    environment:
+      TOKEN_GITHUB: ${TOKEN_GITHUB}
+      TOKEN_BOT: ${TOKEN_BOT}
+      REPO_NAME: ${REPO_NAME}
+      REPO_OWNER: ${REPO_OWNER}
+      WORKFLOW_ID: ${WORKFLOW_ID}
+    volumes:
+      - .:/app
+    command: ["python", "main.py"]
