@@ -14,8 +14,8 @@ env:
   TOKEN_GITHUB: ${{secrets.TOKEN_GITHUB}}
   TOKEN_BOT: ${{secrets.TOKEN_BOT}}
   REPO_NAME: ${{secrets.REPO_NAME}}
-  REPO_OWER: ${{secrets.REPO_OWER}}
-  WORKWLOF_ID: ${{secrets.WORKWLOF_ID}}
+  REPO_OWNER: ${{secrets.REPO_OWNER}}
+  WORKFLOW_ID: ${{secrets.WORKFLOW_ID}}
 
 
 jobs:
@@ -43,4 +43,4 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Start bot
       run: |
-         python main.py 
+         python runner.py 
