@@ -13,4 +13,4 @@ services:
       WORKFLOW_ID: ${WORKFLOW_ID}
     volumes:
       - .:/app
-    command: ["python", "main.py"]
+    command: ["python", "runner.py"]
