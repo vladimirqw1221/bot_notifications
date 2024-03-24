@@ -11,6 +11,10 @@ services:
       REPO_NAME: ${REPO_NAME}
       REPO_OWNER: ${REPO_OWNER}
       WORKFLOW_ID: ${WORKFLOW_ID}
+      DBNAME: ${DBNAME}
+      PASSWORD: ${PASSWORD}
+      HOST: ${HOST}
+      USER_NAME: ${USER_NAME}
     volumes:
       - .:/app
     command: ["python", "runner.py"]

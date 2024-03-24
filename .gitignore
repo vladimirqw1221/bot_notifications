@@ -3,3 +3,5 @@ venv
 .env
 __pycache__
 new_main.py
+debug.py
+table_user/table_user.py
