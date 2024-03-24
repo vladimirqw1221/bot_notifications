@@ -62,10 +62,10 @@ def reg_user(message):
     request_name(message)
 
 # Обработчик нажатия на inline-кнопку для запуска тестов
-@bot.callback_query_handler(func=lambda call: call.data == 'run_tests')
-def run_tests_callback(call):
-    post_run_test()
-    bot.send_message(call.message.chat.id, "Тесты успешно запущены!")
-
-# Запуск бота
-bot.polling()
+# @bot.callback_query_handler(func=lambda call: call.data == 'run_tests')
+# def run_tests_callback(call):
+#     post_run_test()
+#     bot.send_message(call.message.chat.id, "Тесты успешно запущены!")
+#
+# # Запуск бота
+# bot.polling()

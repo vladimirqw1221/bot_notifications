@@ -1,21 +1,23 @@
+import os
+
 import telebot
 from telebot import types
 import time
 from run_jobs.run_jobs import RunJobs
 from table_user.database import DataBase
 from global_enum.hellper_enum import HelpEnum
-from utils.config import DataProject
+from dotenv import load_dotenv
 
 
-
-
+load_dotenv()
 class StartBot(RunJobs):
+
     def __init__(self):
-        self.TOKEN = self.secrets.TOKEN_BOT
+        self.TOKEN = os.getenv('TOKEN_BOT')
         self.tests_button_clicked = False
         self.bot = telebot.TeleBot(self.TOKEN)
         self.admins = DataBase()
-        self.secrets = DataProject()
+
 
     def request_name(self, message):
         self.bot.send_message(message.chat.id, "🔒Пожалуйста, введите  пароль:🔒")
