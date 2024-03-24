@@ -1,31 +1,39 @@
 import telebot
 from telebot import types
-import os
-from dotenv import load_dotenv
 import time
 from run_jobs.run_jobs import RunJobs
+from table_user.database import DataBase
+from global_enum.hellper_enum import HelpEnum
+from utils.config import DataProject
 
-load_dotenv()
+
 
 
 class StartBot(RunJobs):
     def __init__(self):
-        self.TOKEN = os.getenv('TOKEN_BOT')
+        self.TOKEN = self.secrets.TOKEN_BOT
         self.tests_button_clicked = False
         self.bot = telebot.TeleBot(self.TOKEN)
-        self.message = "✅ Тесты успешно запущены! Результаты доступны по ссылке" \
-                       " <a href='https://vladimirqw1221.github.io/test_ui/'>Allure Report</a>."
+        self.admins = DataBase()
+        self.secrets = DataProject()
 
-    def send_welcome(self, chat_id):
-        markup = types.InlineKeyboardMarkup()
+    def request_name(self, message):
+        self.bot.send_message(message.chat.id, "🔒Пожалуйста, введите  пароль:🔒")
+        self.bot.register_next_step_handler(message, self.check_user)
 
-        if not self.tests_button_clicked:
-            markup.row(types.InlineKeyboardButton('🔥 Запустить тесты 🔥', callback_data='run_tests'))
+    def check_user(self, message):
+        user_name = message.text.strip().lower()
+        user = self.admins.check_user(user_name)  # Проверяем наличие пользователя в базе данных
+        if user:
+            markup = telebot.types.InlineKeyboardMarkup()
+            markup.add(telebot.types.InlineKeyboardButton(text='🔥Запустить тесты 🔥', callback_data='run_tests'))
+            self.bot.send_message(message.chat.id, "Для запуска тестов нажмите кнопку ниже.", reply_markup=markup)
         else:
-            markup.row(types.InlineKeyboardButton('🔥 Тесты уже запущены 🔥', callback_data='tests_already_running'))
-
-        markup.row(types.InlineKeyboardButton('Связь с автором 📧', url='https://t.me/valdimirshe'))
-        self.bot.send_message(chat_id, "Добро пожаловать! Нажмите кнопку, чтобы запустить тесты.", reply_markup=markup)
+            markup = types.InlineKeyboardMarkup()
+            markup.add(types.InlineKeyboardButton('Связь с автором 📧', url='https://t.me/valdimirshe'))
+            self.bot.send_message(message.chat.id,
+                                  "У вас нет прав доступа на запуск тестов. Обратитесь к администратору.",
+                                  reply_markup=markup)
 
     def get_emoji_animation(self, seconds):
         emojis = ['⏳', '⌛', '⏰', '⏱️', '🕰️']
@@ -33,35 +41,30 @@ class StartBot(RunJobs):
         return emojis[index] * (seconds % 10)
 
     def start_handler(self, message):
-        self.send_welcome(message.chat.id)
+        self.request_name(message)
 
     def callback_query(self, call):
         if call.data == "run_tests":
             if not self.tests_button_clicked:
                 self.tests_button_clicked = True
-                message = self.bot.send_message(call.message.chat.id,
-                                                "🚀 Тесты запускаются! Пожалуйста, подождите... 🚀")
+                message = self.bot.send_message(call.message.chat.id, HelpEnum.START_TEST_AMIMATION.value)
                 self.post_run_test()
                 for i in range(3 * 60):
-                    self.bot.edit_message_text(chat_id=call.message.chat.id, message_id=message.message_id,
-                                               text=f"🕒 Тесты запускаются! Пожалуйста, подождите... 🕒\n{self.get_emoji_animation(i)}")
+                    self.bot.edit_message_text(
+                        chat_id=call.message.chat.id,
+                        message_id=message.message_id,
+                        text=HelpEnum.START_TEST_ANIMATION_NEW.value + "\n" + self.get_emoji_animation(i)
+                    )
                     time.sleep(1)
                 self.bot.delete_message(call.message.chat.id, message.message_id)
                 self.bot.send_message(
                     call.message.chat.id,
-                    self.message,
+                    HelpEnum.MESSAGE.value,
                     parse_mode='HTML'
-
                 )
-
                 self.tests_button_clicked = False
             else:
-                self.bot.answer_callback_query(call.id, "Тесты уже были запущены.", show_alert=True)
-
-    def chat_member_handler(self, message):
-        if message.new_chat_member.status == 'kicked':
-            return
-        self.send_welcome(message.chat.id)
+                self.bot.answer_callback_query(call.id, "🔥Тесты уже были запущены.🔥", show_alert=True)
 
     def run(self):
         @self.bot.message_handler(commands=['start'])
@@ -71,9 +74,5 @@ class StartBot(RunJobs):
         @self.bot.callback_query_handler(func=lambda call: True)
         def callback_query_wrapper(call):
             self.callback_query(call)
-
-        @self.bot.my_chat_member_handler()
-        def chat_member_handler_wrapper(message):
-            self.chat_member_handler(message)
 
         self.bot.polling()
