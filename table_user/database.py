@@ -1,9 +1,5 @@
 import psycopg2
 from utils.config import DataProject
-# DBNAME=global_user
-# USER=global_user_user
-# PASSWORD=fvvhJ7KDLuuCb9bGQFDpCUazvDxeYh6E
-# HOST=dpg-cnvt8c6ct0pc73do7aqg-a.oregon-postgres.render.com
 
 class DataBase:
     db = None
