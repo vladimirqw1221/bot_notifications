@@ -16,6 +16,10 @@ env:
   REPO_NAME: ${{secrets.REPO_NAME}}
   REPO_OWNER: ${{secrets.REPO_OWNER}}
   WORKFLOW_ID: ${{secrets.WORKFLOW_ID}}
+  DBNAME: ${{secrets.DBNAME}}
+  PASSWORD: ${{secrets.PASSWORD}}
+  HOST: ${{secrets.HOST}}
+  USER_NAME: ${{secrets.USER_NAME}}
 
 
 jobs:
