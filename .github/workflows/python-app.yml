@@ -20,6 +20,8 @@ env:
   PASSWORD: ${{secrets.PASSWORD}}
   HOST: ${{secrets.HOST}}
   USER_NAME: ${{secrets.USER_NAME}}
+  REPO_NAME_API: ${{secrets.REPO_NAME_API}}
+  WORKFLOW_ID_API: ${{secrets.WORKFLOW_ID_API}}
 
 
 jobs:

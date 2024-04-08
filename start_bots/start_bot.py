@@ -1,5 +1,4 @@
 import os
-
 import telebot
 from telebot import types
 import time
@@ -8,8 +7,9 @@ from table_user.database import DataBase
 from global_enum.hellper_enum import HelpEnum
 from dotenv import load_dotenv
 
-
 load_dotenv()
+
+
 class StartBot(RunJobs):
 
     def __init__(self):
@@ -17,7 +17,6 @@ class StartBot(RunJobs):
         self.tests_button_clicked = False
         self.bot = telebot.TeleBot(self.TOKEN)
         self.admins = DataBase()
-
 
     def request_name(self, message):
         self.bot.send_message(message.chat.id, "🔒Пожалуйста, введите  пароль:🔒")
@@ -28,7 +27,10 @@ class StartBot(RunJobs):
         user = self.admins.check_user(user_name)  # Проверяем наличие пользователя в базе данных
         if user:
             markup = telebot.types.InlineKeyboardMarkup()
-            markup.add(telebot.types.InlineKeyboardButton(text='🔥Запустить тесты 🔥', callback_data='run_tests'))
+            ui_button = telebot.types.InlineKeyboardButton(text='🔥Запустить UI тесты 🔥', callback_data='run_tests')
+            api_button = telebot.types.InlineKeyboardButton(text='🔥Запустить API тесты 🔥', callback_data='run_api_test')
+            markup.add(ui_button)
+            markup.add(api_button)
             self.bot.send_message(message.chat.id, "Для запуска тестов нажмите кнопку ниже.", reply_markup=markup)
         else:
             markup = types.InlineKeyboardMarkup()
@@ -45,28 +47,41 @@ class StartBot(RunJobs):
     def start_handler(self, message):
         self.request_name(message)
 
+    def run_schema(self, call, run_function, allure_text):
+        if not self.tests_button_clicked:
+            self.tests_button_clicked = True
+            message = self.bot.send_message(call.message.chat.id, HelpEnum.START_TEST_AMIMATION.value)
+            run_function()
+            for i in range(3 * 60):
+                self.bot.edit_message_text(
+                    chat_id=call.message.chat.id,
+                    message_id=message.message_id,
+                    text=HelpEnum.START_TEST_ANIMATION_NEW.value + "\n" + self.get_emoji_animation(i)
+                )
+                time.sleep(1)
+            self.bot.delete_message(call.message.chat.id, message.message_id)
+            self.bot.send_message(
+                call.message.chat.id,
+                allure_text,
+                parse_mode='HTML'
+            )
+            self.tests_button_clicked = False
+        else:
+            self.bot.answer_callback_query(call.id, "🔥Тесты уже были запущены.🔥", show_alert=True)
+
     def callback_query(self, call):
         if call.data == "run_tests":
-            if not self.tests_button_clicked:
-                self.tests_button_clicked = True
-                message = self.bot.send_message(call.message.chat.id, HelpEnum.START_TEST_AMIMATION.value)
-                self.post_run_test()
-                for i in range(3 * 60):
-                    self.bot.edit_message_text(
-                        chat_id=call.message.chat.id,
-                        message_id=message.message_id,
-                        text=HelpEnum.START_TEST_ANIMATION_NEW.value + "\n" + self.get_emoji_animation(i)
-                    )
-                    time.sleep(1)
-                self.bot.delete_message(call.message.chat.id, message.message_id)
-                self.bot.send_message(
-                    call.message.chat.id,
-                    HelpEnum.MESSAGE.value,
-                    parse_mode='HTML'
-                )
-                self.tests_button_clicked = False
-            else:
-                self.bot.answer_callback_query(call.id, "🔥Тесты уже были запущены.🔥", show_alert=True)
+            self.run_schema(
+                call,
+                self.post_run_test,
+                HelpEnum.MESSAGE.value
+            )
+        elif call.data == "run_api_test":
+            self.run_schema(
+                call,
+                self.post_run_api_test,
+                HelpEnum.MESSAGE_API.value
+            )
 
     def run(self):
         @self.bot.message_handler(commands=['start'])
