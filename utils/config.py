@@ -13,4 +13,6 @@ class DataProject:
     DBNAME = os.getenv('DBNAME')
     PASSWORD = os.getenv('PASSWORD')
     HOST = os.getenv('HOST')
-    USER_NAME= os.getenv('USER_NAME')
+    USER_NAME = os.getenv('USER_NAME')
+    REPO_NAME_API = os.getenv('REPO_NAME_API')
+    WORKFLOW_ID_API = os.getenv('WORKFLOW_ID_API')
