@@ -35,3 +35,5 @@ class DataBase:
     def close_bd(self) -> None:
         self.cursor.close()
         self.db.close()
+
+
